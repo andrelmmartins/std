@@ -5,20 +5,22 @@ export const paramsToQueryString = (
 ) => {
   const keys = Object.keys(params) as Array<keyof typeof params>;
 
-  const transformedValues = keys.map((_key) => {
+  const transformedParams: string[][] = [];
+
+  keys.forEach((_key) => {
     const value = params[_key];
     const key = Array.isArray(value) ? `${_key}[]` : _key;
 
-    if (!value) {
-      return [];
+    if (value) {
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          transformedParams.push([key, v.toString()]);
+        });
+      } else {
+        transformedParams.push([key, value.toString()]);
+      }
     }
+  });
 
-    if (Array.isArray(value)) {
-      return value.flatMap((v) => [key, v.toString()]);
-    }
-
-    return [key, value?.toString()];
-  }).filter((v) => v.length);
-
-  return new URLSearchParams(transformedValues);
+  return new URLSearchParams(transformedParams);
 };
